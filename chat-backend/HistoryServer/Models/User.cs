@@ -53,13 +53,5 @@ public class User {
         CreatedAt = now;
         UpdatedAt = now;
     }
-
-    //public User(string username, string firstName, string lastName, string connectionId)
-    //{
-    //    Username = username;
-    //    FirstName = firstName;
-    //    LastName = lastName;
-    //    ConnectionId = connectionId;
-    //}
 }
 
