@@ -25,7 +25,7 @@ public class PersistMessageHistoryService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         int minutes = _configuration.GetValue<int>("PersistantPeriod:Minutes");
-        PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromSeconds(minutes));
+        PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromMinutes(minutes));
 
         while (await timer.WaitForNextTickAsync(stoppingToken)
             && !stoppingToken.IsCancellationRequested)
