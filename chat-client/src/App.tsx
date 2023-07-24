@@ -5,6 +5,7 @@ import ChatBox from "./components/ChatBox";
 import { v4 as uuidv4 } from "uuid";
 import * as SignalR from "@microsoft/signalr";
 import { EstablishConnectionResponse, Message, User } from "./types";
+import { buildConversationId } from "./utls";
 
 const CHAT_HUB_URL = "https://localhost:7154/chat-hub";
 const RECEIVE_MESSAGE_EVENT = "ReceiveMessage";
@@ -28,14 +29,6 @@ export default function App() {
       connection.on(
         RECEIVE_MESSAGE_EVENT,
         ({ id, content, senderId, receiverId, timestamp }) => {
-          console.log("[Receive Message]", {
-            id,
-            content,
-            senderId,
-            receiverId,
-            timestamp,
-          });
-
           const conversationId = buildConversationId(senderId, receiverId);
           const message: Message = {
             id,
@@ -44,7 +37,7 @@ export default function App() {
             receiverId,
             timestamp,
           };
-          console.log("current conversations", conversations[conversationId]);
+
           setConversations({
             ...conversations,
             [conversationId]: [
@@ -56,18 +49,11 @@ export default function App() {
       );
 
       connection.on(USER_CONNECT_EVENT, (connectedUser: User) => {
-        console.log(
-          "[UserConnect] A NEW User connected to the system",
-          connectedUser
-        );
-
         if (currentUser) {
           const newConversations = {
             ...conversations,
             [buildConversationId(currentUser.id, connectedUser.id)]: [],
           };
-
-          console.log("[UserConnect] conversations", newConversations);
 
           setConversations(newConversations);
         }
@@ -75,13 +61,6 @@ export default function App() {
       });
 
       connection.on(USER_DISCONNECT_EVENT, (disconnectedUserId: string) => {
-        console.log(
-          "[UserConnect] A User Disconnected from the system",
-          users[disconnectedUserId]
-        );
-        // if (selectedUser?.id === disconnectedUserId) {
-        //   setSelectedUser(disconnectedUser);
-        // }
         setUsers({
           ...users,
           [disconnectedUserId]: {
@@ -106,17 +85,10 @@ export default function App() {
       connection.on(
         ESTABLISH_CONNECTION_EVENT,
         ({ connectionId, users }: EstablishConnectionResponse) => {
-          console.log("[EstablishConnection] My connectionId", connectionId);
-          console.log(
-            "[EstablishConnection] Current Users in the system",
-            users
-          );
-
           const newSelf: User = { ...myself, id: connectionId };
           const newConversations = Object.fromEntries(
             users.map((user) => [buildConversationId(newSelf.id, user.id), []])
           );
-          console.log("[EstablishConnection] conversations", newConversations);
 
           setUsers(Object.fromEntries(users.map((user) => [user.id, user])));
           setCurrentUser(newSelf);
@@ -141,6 +113,7 @@ export default function App() {
 
   function sendMessage(sender: User, receiver: User, content: string): void {
     if (connection) {
+      const conversationId = buildConversationId(sender.id, receiver.id);
       const message: Message = {
         id: uuidv4(),
         content,
@@ -148,10 +121,6 @@ export default function App() {
         receiverId: receiver.id,
         timestamp: new Date().getTime(),
       };
-      console.info("Message to send:", message);
-
-      const conversationId = buildConversationId(sender.id, receiver.id);
-      console.info({ sender, receiver, conversationId });
 
       setConversations({
         ...conversations,
@@ -174,10 +143,6 @@ export default function App() {
       : "";
   }
 
-  function buildConversationId(id1: string, id2: string): string {
-    return [id1, id2].sort().join("#");
-  }
-
   function handleUserSelect(user: User): void {
     setSelectedUser(user);
   }
@@ -192,6 +157,8 @@ export default function App() {
             users={Object.values(users)}
             selectedUserId={selectedUser?.id}
             handleUserSelect={handleUserSelect}
+            conversations={conversations}
+            currentUser={currentUser}
           />
           <ChatBox
             messages={getSelectedUserMessages(getConversationId())}

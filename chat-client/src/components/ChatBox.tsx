@@ -32,11 +32,11 @@ export default function ChatBox({
   const sendBtnOnlineStyles = "bg-blue-500 hover:bg-blue-600";
 
   return (
-    <div className="bg-white p-4 h-screen w-3/4 flex flex-col">
+    <div className="flex flex-col h-screen w-full bg-neutral-50">
       {selectedUser ? (
         <>
-          <h1 className="text-2xl font-bold mb-4">
-            Chat with {`User ${selectedUser.username}`}
+          <h1 className="text-2xl p-4 font-bold mb-4 border-b border-gray-400">
+            {selectedUser.username}
           </h1>
           <div className="overflow-y-scroll flex-grow px-2">
             {messages.map((message) => (
@@ -44,11 +44,12 @@ export default function ChatBox({
                 key={message.id}
                 isSender={message.senderId === currentUser?.id}
                 content={message.content}
+                timestamp={message.timestamp}
               />
             ))}
           </div>
           <form
-            className="flex mt-4"
+            className="flex mt-4 p-4"
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage(currentUser, selectedUser, newMessage);
