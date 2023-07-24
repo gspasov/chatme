@@ -4,11 +4,11 @@ Simple chat application developed using [SignalR](https://dotnet.microsoft.com/e
 
 ## Components
 
-- ChatServer
+- **ChatServer**
   - This server is responsible for the Chat communication with the Client Application. Keeps messages in memory and persists the message history to the HistoryServer every 5 minutes.
-- HistoryServer
+- **HistoryServer**
   - Responsible for keeping the Users in system and all the message history
-- Client
+- **ClientApplication**
   - Simple chat UI setup via React.
 
 
