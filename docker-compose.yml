@@ -1,0 +1,19 @@
+version: '3.1'
+
+volumes:
+  chatserver-db:
+    name: chatserver-db
+
+services:
+  postgres:
+    image: postgres:15.1
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - DEBUG=1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    command: postgres -c 'max_connections=120'
+    volumes:
+      - chatserver-db:/var/lib/postgresql/data
